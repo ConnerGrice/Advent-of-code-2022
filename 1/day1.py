@@ -8,7 +8,7 @@ Day 1:
 """
 #TASK 1============================================================================
 #Open file containing puzzle inputs
-with open("input.txt","r") as f:
+with open("1\input.txt","r") as f:
 
     elf_list = []   #List of total calories being held by each elf
     calories = 0    #Calorie counter of each elf
@@ -26,16 +26,14 @@ print(f"The elf carrying the most calories is carrying {max(elf_list)} calories"
 elf_list.sort()
 
 #Gets the 1st, 2nd, and 3rd highest elf
-first = elf_list[-1]
-second = elf_list[-2]
-third = elf_list[-3]
+first,second, third = elf_list[-1], elf_list[-2], elf_list[-3]
 
 #Prints results
 print()
 print("Top 3 elves:")
-print(f"1st: {first}")
-print(f"2nd: {second}")
-print(f"3rd: {third}")
+print(f"\t1st: {first}")
+print(f"\t2nd: {second}")
+print(f"\t3rd: {third}")
 print()
 print(f"Total of top 3: {first+second+third}")
 
