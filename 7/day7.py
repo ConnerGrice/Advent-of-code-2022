@@ -1,3 +1,5 @@
+
+#SYSTEMOBJECT CLASS====================================================================================
 #Class for a basic system object that has a name and some sort of memory allocation
 class SystemObject:
     def __init__(self,name,size):
@@ -9,13 +11,15 @@ class SystemObject:
         """
         Gives the directory its parent directory
         """
-        item.parent = self
+        item.parent = (self)
 
+#FILE CLASS===========================================================================================
 #A class that represents a file
 class File(SystemObject):
     def __init__(self,name,size):
         super().__init__(name,size)
 
+#DIRECTORY CLASS===========================================================================================
 #Directory class (contains files or directories)    
 class Directory(SystemObject):
     def __init__(self,name):
@@ -42,6 +46,12 @@ class Directory(SystemObject):
         
         return result
     
+    def __lt__(self,other):
+        """
+        Allows for directories to be sorted by size
+        """
+        return self.size < other.size
+
     def updateSize(self):
         """
         Gets the total *memory allocation* of all items inside
@@ -56,52 +66,50 @@ class Directory(SystemObject):
         self.updateParent(item)
         self.updateSize()
 
+#FUNCTIONS===========================================================================================
+def calculateSize(directories):
+    """
+    Updates the size for all directories
+    """
+    for dir in directories.values():
+        #Checks if directory is at the end of a path (only contains files)
+        if all(isinstance(child,File) for child in dir.children):
+
+            #Parse down the path to the root file, updateing the size as it goes
+            adult = dir
+            while adult.parent != 0:
+                dir_temp = adult.parent
+                dir_temp.updateSize()
+                adult = dir_temp
+
+def doTask1(directories):
+    """
+    Finds all the directories that have a size of more than 100000
+    and sums thair sizes
+    """
+    #Loop through all directories 
+    total = 0
+    for item in directories.values():
+
+        #Sum the size of all valid directories
+        if item.size <= 100000:
+            total += item.size
+
+    return total
+
+def doTask2(directories,free):
+    """
+    Calculates the space needed for the update and finds the directory that is bigger but closest to that value
+    """
+    space_needed = 30000000 - free
+    #Generates list of directories with are big enough and sorts them in acsending order
+    to_remove = sorted([x for x in directories.values() if x.size >= space_needed])
+    return to_remove[0]
+
+#MAIN PROGRAMM===============================================================================================
 #Reads all the puzzle commands
 with open("input.txt","r") as f:
     puzzle = f.readlines()
-
-test1 = [
-    "$ cd /",
-    "$ ls",
-    "dir a",
-    "dir b",
-    "123 file1",
-    "$ cd a",
-    "$ ls",
-    "1 file2",
-    "1 file3",
-    "$ cd ..",
-    "$ cd b",
-    "$ ls",
-    "2 file4",
-    "200 file5"
-]
-
-test = [
-    "$ cd /",
-    "$ ls",
-    "dir a",
-    "14848514 b.txt",
-    "8504156 c.dat",
-    "dir d",
-    "$ cd a",
-    "$ ls",
-    "dir e",
-    "29116 f",
-    "2557 g",
-    "62596 h.lst",
-    "$ cd e",
-    "$ ls",
-    "584 i",
-    "$ cd ..",
-    "$ cd ..",
-    "$ cd d",
-    "$ ls",
-    "4060174 j",
-    "8033020 d.log",
-    "5626152 d.ext",
-    "7214296 k",
-    ]   
 
 #Initialise root directory
 dir_root = Directory("//")
@@ -160,35 +168,24 @@ for line in puzzle:
             #Add this file as a child of the current directory
             current_dir.addChild(file_new)
 
+#Updates the size of all directories after all have been placed in the correct places
+calculateSize(dir_dict)
 
-#Once all files have been placed in their directories, update all directory sizes
-for item in dir_dict.values():
-    item.updateSize()
+#Gets the sum of sizes of all the directories above 100000 bytes
+task1 = doTask1(dir_dict)
+print()
+print("Task 1: ",task1," Bytes")
 
-#Update any directories that do not get caught by the first sweep
-for dir in dir_dict.values():
-    if dir.size == 0:
-        print(dir)
-        dir.updateSize()
-        print(dir)
+#Calculates the space free.
+free_space = 70000000 - dir_dict["//"].size
 
-total = 0
-#Loop through all directories 
-for item in dir_dict.values():
-    #Do not count the root directory
-    if item.name == "/":
-        print(item)
-        continue
+#Finds the smallest directory to delete to make space for the update
+dir_delete = doTask2(dir_dict,free_space)
 
-    #Sum the size of all valid directories
-    if item.size <= 100000:
-        total += item.size
-    
-    print(item)
-
-print("Task 1: ",total," Bytes")
-
-
-
-
-    
+print()
+print("Local Disk (//:)")
+print(f"{free_space} B free of 30000000 B")
+print(f"To update, delete: ")
+print(dir_delete)
+print()
+print("Task 2: ",dir_delete.size)
