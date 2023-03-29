@@ -27,9 +27,12 @@ int main() {
 	
 	try {
 		GameManager gameManager(inputs);
+		gameManager.runGames();
+
 	} catch (const std::exception& err) {
 		std::cout << "ERROR: " << err.what();
 		return EXIT_FAILURE;
 	}
+
 	return 0;
 }

@@ -2,11 +2,15 @@
 #include <vector>
 #include <map>
 
+#include "WinStates.h"
+
 class Game {
 public:
 	Game(std::pair<char, char> plays);
 
+	int play();
 private:
-	std::map<std::pair<char, char>, int> winConditions;
+	std::pair<char, char> round;
+	WinStates* table;
 };
 

@@ -13,5 +13,10 @@ GameManager::GameManager(std::fstream& gameInputs): score(0) {
 }
 
 int GameManager::runGames() {
-
+	int score = 0;
+	for (std::pair<char, char> round : games) {
+		Game game(round);
+		score += game.play();
+	}
+	return score;
 }

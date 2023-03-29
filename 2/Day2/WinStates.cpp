@@ -1,5 +1,4 @@
-#include <map>
-#include <vector>
+#include "WinStates.h"
 
 /*A singleton class that hold the information about what
 games will result in what score and can be used as a look-up-table
@@ -18,35 +17,19 @@ Scores:
 	Paper: 2
 	Scissors: 3
 */
-class WinStates {
-	//Private instances of the look-up-table
-	static WinStates* instance;
-	std::map<std::pair<char, char>, int> mStates;
 
-	//Construct table in constructor
-	WinStates() {
-		std::tuple<char, char, char> opp{ 'A','B','C' };
-		std::tuple<char, char, char> player{ 'X','Y','Z' };
+WinStates* WinStates::_instance = nullptr;
 
-	};
-	
-	//Default destructor
-	~WinStates() = default;
-public:
-	//Does not allow copy or assignment of more than 1 instance
-	WinStates(const WinStates&) = delete;
-	WinStates& operator=(const WinStates&) = delete;
+WinStates::WinStates() {
+	std::vector<char> opp{ 'A','B','C' };
+	std::vector<char> player{ 'X','Y','Z' };
+	for (char played : player) {
+	}
+}
 
-	//Gets the single instance of this class
-	static WinStates* getInstance() {
-		if (!instance) {
-			instance = new WinStates();
-		}
-		return instance;
-	};
-
-	//Gets the score of a given game
-	int getState(std::pair<char, char> play) {
-		return mStates[play];
-	};
-};
+WinStates* WinStates::getInstance() {
+	if (!_instance) {
+		_instance = new WinStates();
+	}
+	return _instance;
+}

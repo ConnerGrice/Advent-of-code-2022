@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 
+#include "Game.h"
 class GameManager {
 public:
 	//NOTE: fstream must be a reference since it is not copyable
