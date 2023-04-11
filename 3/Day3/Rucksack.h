@@ -25,9 +25,13 @@ class Rucksack {
 public:
 	//Constructor
 	Rucksack();
-	Rucksack(std::string items);
+	Rucksack(std::string& items);
 
-
+	//Imlementing iterators for the entire bag contents
+	typedef std::string::iterator iter;
+	typedef std::string::const_iterator const_iter;
+	inline iter begin() { return full.begin(); };
+	inline iter end() { return full.end(); };
 	
 	//Returns the priority value of a given letter
 	int findPriority(char letter);

@@ -1,9 +1,9 @@
 #include "Rucksack.h"
-Rucksack::Rucksack() : full(0), first(0), second(0){
+Rucksack::Rucksack() {
     priority = generateMap();
 }
 
-Rucksack::Rucksack(std::string items): full(items) {
+Rucksack::Rucksack(std::string& items): full(items) {
     std::size_t length = items.size();
     first = items.substr(0, length / 2);
     second = items.substr(length / 2, length);
