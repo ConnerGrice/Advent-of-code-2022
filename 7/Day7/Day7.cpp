@@ -24,6 +24,26 @@ std::vector<std::string> splitString(const std::string& input, const char delim)
 	return output;
 }
 
+/*
+Scans the file system and calculates the total memory of each directory
+(including their sub directories
+*/
+void updateStorage(GeneralTree::Tree<int> home) {
+	//Gets the order to check each node
+	auto scanOrder = home.scan();
+	for (auto node : scanOrder) {
+		if (node->getChild()) {
+			auto tempNode = node->getChild();
+			node->value += tempNode->value;
+			while (tempNode->getSibling()) {
+				tempNode = tempNode->getSibling();
+				node->value += tempNode->value;
+			}
+		}
+		std::cout << node->getKey() <<":"<< node->value << std::endl;
+	}
+}
+
 int main() {
 	//Gets puzzle input
 	std::fstream input("../testing.txt");
@@ -48,7 +68,7 @@ int main() {
 					continue;
 
 				//Move to parent directory
-				else if (words[2] == "..") {
+				if (words[2] == "..") {
 					currentDir = currentDir->getParent();
 					currentDirName = currentDir->getKey();
 					std::cout << currentDirName << std::endl;
@@ -68,8 +88,9 @@ int main() {
 		} else {
 			//Adds file to file system
 			system.addChild(currentDir, words[1], std::stoi(words[0]));
+			std::cout << currentDirName << words[1] << "(" << words[0] <<" kb)" << std::endl;
 		}
 	}
-
+	updateStorage(system);
 	return 0;
 }
