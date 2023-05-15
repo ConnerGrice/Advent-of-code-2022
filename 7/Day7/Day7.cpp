@@ -28,10 +28,9 @@ std::vector<std::string> splitString(const std::string& input, const char delim)
 Scans the file system and calculates the total memory of each directory
 (including their sub directories
 */
-void updateStorage(GeneralTree::Tree<int> home) {
+void updateStorage(std::vector<Node_ptr> order) {
 	//Gets the order to check each node
-	auto scanOrder = home.scan();
-	for (auto node : scanOrder) {
+	for (auto node : order) {
 		if (node->getChild()) {
 			auto tempNode = node->getChild();
 			node->value += tempNode->value;
@@ -40,13 +39,52 @@ void updateStorage(GeneralTree::Tree<int> home) {
 				node->value += tempNode->value;
 			}
 		}
-		std::cout << node->getKey() <<":"<< node->value << std::endl;
+		//std::cout << node->getKey() <<":"<< node->value << std::endl;
+	}
+}
+
+/*
+Finds the total memory of all DIRECTORIES that take up more then 100000
+*/
+int doTask1(std::vector<Node_ptr> order) {
+	int result = 0;
+	for (auto node : order) {
+		//Ignore files
+		if (!node->getChild())
+			continue;
+
+		if (node->value <= 100000)
+			result += node->value;
+	}
+	return result;
+}
+
+/*
+Finds the size of the smallest directory that needs to be deleted 
+in order to free up enough space for the update
+*/
+int doTask2(std::vector<Node_ptr> order) {
+	int total = 70000000;	//Total space
+	int update = 30000000;	//Update size
+	int used = order.back()->value;	//Total used space
+	int free = total - used;	//Total free space
+	int need = update - free;	//Space needed for update
+
+	for (auto node : order) {
+		//Ignore files
+		if (!node->getChild())
+			continue;
+
+		//Since post-order is being used,
+		//the first file found will be the smallest
+		if (node->value >= need)
+			return node->value;
 	}
 }
 
 int main() {
 	//Gets puzzle input
-	std::fstream input("../testing.txt");
+	std::fstream input("../input.txt");
 	if (!input.is_open())
 		return EXIT_FAILURE;
 	
@@ -71,14 +109,14 @@ int main() {
 				if (words[2] == "..") {
 					currentDir = currentDir->getParent();
 					currentDirName = currentDir->getKey();
-					std::cout << currentDirName << std::endl;
+					//std::cout << currentDirName << std::endl;
 					continue;
 				}
 
 				//Move to new directory
 				currentDirName += words[2] + "/";
 				currentDir = system.find(GeneralTree::SearchMethods::DFS, currentDirName);
-				std::cout << currentDirName << std::endl;
+				//std::cout << currentDirName << std::endl;
 			}
 		//Checks if new directory is present in current directory
 		} else if (words[0] == "dir") {
@@ -88,9 +126,20 @@ int main() {
 		} else {
 			//Adds file to file system
 			system.addChild(currentDir, words[1], std::stoi(words[0]));
-			std::cout << currentDirName << words[1] << "(" << words[0] <<" kb)" << std::endl;
+			//std::cout << currentDirName << words[1] << "(" << words[0] <<" kb)" << std::endl;
 		}
 	}
-	updateStorage(system);
+	//Gets the nodes inside file system in post-order
+	auto iterVector = system.scan();
+
+	//Calculates and sets the size of each file and directory
+	updateStorage(iterVector);
+
+	//Complete tasks
+	auto task1 = doTask1(iterVector);
+	auto task2 = doTask2(iterVector);
+	
+	std::cout <<"The total space of all directories that take up more than 100000 is "<< task1<<"kB\n";
+	std::cout <<"The smallest directory that can be deleted in order to free up enough space for the update has a size of "<< task2 << "kB\n";
 	return 0;
 }
