@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 #include "GeneralTree.h"
 #include "GeneralTree.cpp"
@@ -46,15 +47,16 @@ void updateStorage(std::vector<Node_ptr> order) {
 /*
 Finds the total memory of all DIRECTORIES that take up more then 100000
 */
-int doTask1(std::vector<Node_ptr> order) {
+int doTask1(GeneralTree::Tree<int> tree) {
 	int result = 0;
-	for (auto node : order) {
+
+	for (auto& node : tree) {
 		//Ignore files
-		if (!node->getChild())
+		if (!node.getChild())
 			continue;
 
-		if (node->value <= 100000)
-			result += node->value;
+		if (node.value <= 100000)
+			result += node.value;
 	}
 	return result;
 }
@@ -63,23 +65,25 @@ int doTask1(std::vector<Node_ptr> order) {
 Finds the size of the smallest directory that needs to be deleted 
 in order to free up enough space for the update
 */
-int doTask2(std::vector<Node_ptr> order) {
+int doTask2(GeneralTree::Tree<int> tree) {
 	int total = 70000000;	//Total space
 	int update = 30000000;	//Update size
-	int used = order.back()->value;	//Total used space
+	int used = tree.getRoot()->value;	//Total used space
 	int free = total - used;	//Total free space
 	int need = update - free;	//Space needed for update
 
-	for (auto node : order) {
+	std::vector<int> files;
+	for (auto& node : tree) {
 		//Ignore files
-		if (!node->getChild())
+		if (!node.getChild())
 			continue;
 
 		//Since post-order is being used,
 		//the first file found will be the smallest
-		if (node->value >= need)
-			return node->value;
+		if (node.value >= need)
+			files.push_back(node.value);
 	}
+	return *std::min_element(files.begin(),files.end());
 }
 
 int main() {
@@ -136,8 +140,8 @@ int main() {
 	updateStorage(iterVector);
 
 	//Complete tasks
-	auto task1 = doTask1(iterVector);
-	auto task2 = doTask2(iterVector);
+	auto task1 = doTask1(system);
+	auto task2 = doTask2(system);
 	
 	std::cout <<"The total space of all directories that take up more than 100000 is "<< task1<<"kB\n";
 	std::cout <<"The smallest directory that can be deleted in order to free up enough space for the update has a size of "<< task2 << "kB\n";
